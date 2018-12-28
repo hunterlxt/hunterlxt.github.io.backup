@@ -2,8 +2,9 @@
 layout:     post
 title:      "Linux配置记录"
 subtitle:   "Hello World, Hello Blog"
-date:       2018-09-01
+date:       2017-12-31
 author:     "TXXT"
+catalog:    true
 tags:
     - 环境配置
     - Linux
