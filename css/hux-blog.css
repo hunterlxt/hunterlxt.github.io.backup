@@ -880,10 +880,6 @@ body {
 .navbar-default .navbar-toggle .icon-bar + .icon-bar {
   margin-top: 3px;
 }
-/* Hux customize Style for Duoshuo */
-.comment {
-  margin-top: 20px;
-}
 .comment #ds-thread #ds-reset a.ds-like-thread-button {
   border: 1px solid #ddd;
   border-radius: 0px;

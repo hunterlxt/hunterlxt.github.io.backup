@@ -1,22 +1,22 @@
 # Site settings
-title: Your Blog
-SEOTitle: 你的博客 | Your Blog
+title: TXXT Blog
+SEOTitle: 新韬的博客 | TXXT Blog
 header-img: img/home-bg.jpg
-email: huxpro@gmail.com
+email: hunterlxt@live.com
 description: ""
 keyword: ""
-url: "http://huangxuan.me"              # your host, for absolute URL
-baseurl: "/huxblog-boilerplate"         # for example, '/blog' if your blog hosted on 'host/blog'
+url: "http://hunterlxt.github.io"              # your host, for absolute URL
+baseurl: ""         # for example, '/blog' if your blog hosted on 'host/blog'
 
 
 
 # SNS settings
 RSS: false
-weibo_username:     huxpro
-zhihu_username:     huxpro
-github_username:    huxpro
-#twitter_username:  huxpro
-facebook_username:  huxpro
+#weibo_username:     hunterlxt
+zhihu_username:     hunterlxt
+github_username:    hunterlxt
+#twitter_username:  hunterlxt
+#facebook_username:  hunterlxt
 
 
 
@@ -35,7 +35,6 @@ anchorjs: true                          # if you want to customize anchor. check
 gems: [jekyll-paginate]
 
 
-
 # Markdown settings
 # replace redcarpet to kramdown,
 # although redcarpet can auto highlight code, the lack of header-id make the catalog impossible, so I switch to kramdown
@@ -48,12 +47,6 @@ kramdown:
 
 # Disqus settings
 #disqus_username: _your_disqus_short_name_
-
-# Duoshuo settings
-duoshuo_username: huxblog
-# Share component is depend on Comment so we can NOT use share only.
-duoshuo_share: true                     # set to false if you want to use Comment without Sharing
-
 
 
 
