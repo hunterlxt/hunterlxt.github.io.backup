@@ -47,7 +47,6 @@ markdown: kramdown
 kramdown:
   input: GFM                            # use Github Flavored Markdown !important
   syntax_highlighter_opts:
-    highlighter: rouge
     disable: true
 
 
