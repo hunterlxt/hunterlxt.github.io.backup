@@ -46,8 +46,6 @@ plugins: [jekyll-paginate]
 markdown: kramdown
 kramdown:
   input: GFM                            # use Github Flavored Markdown !important
-  syntax_highlighter_opts:
-    disable: true
 
 # Disqus settings
 disqus_username: hunterlxt-github-io
