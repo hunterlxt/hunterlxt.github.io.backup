@@ -9,9 +9,9 @@ tags:
     - 编译
 ---
 
-[TOC]
-
 call stack是一个栈数据结构，用来存放程序的active subroutines。栈的作用很多，但主要是为了追踪当active subroutine执行完毕后的返回控制。
+
+[TOC]
 
 ## 1 描述
 
