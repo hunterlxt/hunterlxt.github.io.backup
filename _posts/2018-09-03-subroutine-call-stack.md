@@ -11,8 +11,6 @@ tags:
 
 call stack是一个栈数据结构，用来存放程序的active subroutines。栈的作用很多，但主要是为了追踪当active subroutine执行完毕后的返回控制。
 
-[TOC]
-
 ## 1 描述
 
 对于call stack，caller把返回的地址压入栈，当subroutine完成后，从栈里弹出后续控制的地址。如果压入的地址用完了call stack的分配空间，那么就会栈溢出错误。通常一个线程只有对应一个call stack。
