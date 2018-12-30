@@ -58,7 +58,7 @@ function (){
 //这两个执行时间分别是2.77ms和2.76ms，因为有内联优化的存在。
 ```
 
-#### 4.1 什么是function call
+### 4.1 什么是function call
 
 现在看下面这个代码：
 
@@ -89,7 +89,7 @@ result = do_something( param1, param2 );
 
 在一些编译器优化中，编译器会通过在栈上重用变量避免大量的推送和弹出操作。理想情况下，编译器实际上可以完全消除参数的push and pop。
 
-#### 4.4 Jump
+##### 4.4 Jump
 
 subroutine做完之后会返回到调用它的地方，return address也是保存在stack里，但是因为这个东西过于常见，CPU一般都有特殊的功能处理这类情况。CPU做比push and pop快的多。
 
