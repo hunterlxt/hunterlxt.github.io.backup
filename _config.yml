@@ -3,7 +3,7 @@ title: TXXT Blog
 SEOTitle: 阿韬的博客 | TXXT Blog
 header-img: img/home-bg.jpg
 email: hunterlxt@live.com
-description: "关于程序与设计、黑客与画家"
+description: "分布式存储和计算机系统"
 keyword: "TXXT Blog, 博客, Linux, 分布式系统, 存储, 分布式存储, 操作系统, 体系结构, 数据库, C++"
 url: "https://hunterlxt.github.io"              # your host, for absolute URL
 baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
@@ -63,7 +63,7 @@ ba_track_id: d66c06e57997e21df0e1f8584335949a
 
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
-sidebar-about-description: "For the next quantum leap<br>专心刷题！！！"
+sidebar-about-description: "如果无法加载图片和评论，请科学上网<br>https://github.com/shadowsocks"
 sidebar-avatar: /img/avatar-hux-ny.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
