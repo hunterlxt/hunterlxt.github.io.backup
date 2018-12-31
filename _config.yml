@@ -63,7 +63,7 @@ ba_track_id: d66c06e57997e21df0e1f8584335949a
 
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
-sidebar-about-description: "如果无法加载图片和评论，请使用如下工具：<br><a href="https://github.com/shadowsocks">梯子</a>"
+sidebar-about-description: "如果无法加载图片和评论，请科学上网"
 sidebar-avatar: /img/avatar-hux-ny.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
