@@ -6,7 +6,7 @@ date:       2017-12-31
 author:     "TXXT"
 catalog:    true
 tags:
-    - 环境配置
+    - 配置
     - Linux
     - Vim
 ---

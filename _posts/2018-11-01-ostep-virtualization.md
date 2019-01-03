@@ -2,7 +2,7 @@
 layout:     post
 title:      "操作系统的三个主题——虚拟化"
 subtitle:   "The part 1 of Operating Systems: Three Easy Pieces"
-date:       2018-09-01
+date:       2018-11-01
 author:     "TXXT"
 catalog:    true
 tags:
@@ -985,13 +985,13 @@ other bits 里存的有 **valid bit** 和 **protection bit** 等，还有其它�
 
 #### 19.5 TLB的问题
 
-######### context switch
+##### context switch
 
 不同的进程的地址空间对应不同的页表，而每次更换进程就清空TLB开销过大，所以加入额外的bit指示这个 translation 是谁的，这样就算有同样的 VPN 也不会搞混了。ASID（**address space identifier**）就是干这个活的。
 
 ![1546413897279](/img/in-post/虚拟化virtualization.assets/1546413897279.png)
 
-######### Replacement Policy
+##### Replacement Policy
 
 当替换一个旧的entry时，一般替换 **least-recently-used** (LRU) entry。
 
@@ -1045,7 +1045,7 @@ bounds寄存器在这种段页式管理中很重要，比如一个段只用了�
 
 但是注意！TLB miss后现在需要两次load了，一次是 page directory，一次是PTE本身。这是个 **time-space trade-off**。所以在这些更小的table的情况中，TLB miss造成了更大的开销。而且为了节约内存，我们让系统支持多级页表更加复杂化。
 
-######### A Detailed Multi-level Example
+##### A Detailed Multi-level Example
 
 ![1546437128178](/img/in-post/虚拟化virtualization.assets/1546437128178.png)
 
@@ -1073,7 +1073,7 @@ bounds寄存器在这种段页式管理中很重要，比如一个段只用了�
 
 
 
-######### More Than Two Levels
+##### More Than Two Levels
 
 ![1546438233283](/img/in-post/虚拟化virtualization.assets/1546438233283.png)
 
@@ -1081,7 +1081,7 @@ bounds寄存器在这种段页式管理中很重要，比如一个段只用了�
 
 
 
-######### Remember the TLB
+##### Remember the TLB
 
 ![1546438322464](/img/in-post/虚拟化virtualization.assets/1546438322464.png)
 
