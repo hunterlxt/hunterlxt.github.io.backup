@@ -8,8 +8,6 @@ tags:
     - Distributed System
     - Network
 ---
-SWIM: The scalable membership protocol
-
 ## 1 What is Membership ???
 SWIM是一个著名的分布式系统成员协议，它基于Gossip发展而来，现在已经在P2P文件共享、分布式数据库中广泛应用。介绍这些概念前有必要说一下Membership的基本概念。
 在分布式系统中，你可以想象有成千上万的members，当然你可以认为每个member就是一个process，它们通过网络互联。但是这个网络是动态的系统，随时都有member退出网络，也有新的加入网络。Membership协议只想解决一个简单的问题：**server想知道哪些是live peers**
