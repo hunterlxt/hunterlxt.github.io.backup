@@ -19,7 +19,7 @@ tags:
 
 OS实现上述主要通过 **virtualization**。OS把物理资源转变成更通用易用的形式。所以有时候OS就视作一个virtual machine。为了让users告诉OS想做什么，OS提供了一些API。一般OS都提供了几百个**system call**给你调用。或者我们也说OS提供了一个 **standard library** 给应用程序。
 
-## 2.1 Virtualizing the CPU
+#### 2.1 Virtualizing the CPU
 
 ![1544359214933](/img/in-post/虚拟化virtualization.assets/1544359214933.png)
 
@@ -29,7 +29,7 @@ OS实现上述主要通过 **virtualization**。OS把物理资源转变成更通
 
 你会发现4个程序都执行了，但是真实的CPU只有一个，是不是很神奇！
 
-## 2.2 Virtualizing Memory
+#### 2.2 Virtualizing Memory
 
 ![1544360428875](/img/in-post/虚拟化virtualization.assets/1544360428875.png)
 
@@ -37,7 +37,7 @@ OS实现上述主要通过 **virtualization**。OS把物理资源转变成更通
 
 两个进程（对应两个PID）分别都在地址00200000分配了空间，然后修改的数据居然互不影响。这是因为每个程序都跑在自己的 private memory 中。事实上，这里正在发生的就是 **virtualizing memory**。每一个程序都在访问自己的私有的 **virtual address space** ，有时候称作 **address space** ，这段空间是OS映射在物理内存上的一部分。
 
-## 2.3 Concurrency
+#### 2.3 Concurrency
 
 ![1544430405868](/img/in-post/虚拟化virtualization.assets/1544430405868.png)
 
@@ -45,7 +45,7 @@ OS实现上述主要通过 **virtualization**。OS把物理资源转变成更通
 
 当参数小的时候，两个线程对同一个数字加1，最后得到输入的两倍值；但是，当输入很大后，有时候结果并不是两倍。这是因为 load add store 这3个指令并不是一起同时执行完的（**atomically**），而是分别执行，这就产生了 **concurrency** 的问题。
 
-## 2.4 Persistence
+#### 2.4 Persistence
 
 第三部分就是持久化了。因为系统内存中，数据很容易就丢失了，因为DRAM是易失的。需要软件和硬件保证数据持久化。这种硬件以 i/o 设备形式存在。软件部分就是熟悉的 **file system**。
 
@@ -53,7 +53,7 @@ OS实现上述主要通过 **virtualization**。OS把物理资源转变成更通
 
 图2.6展示了创建一个文件并包含一串字符。程序进行了3个调用，第一个是open()，打开创建文件；第二个是wrie()，写一些数据进去；然后是close()。这就是大体上文件系统帮我们做的，帮我们找位置存起来，帮我们找文件等等。有了文件系统，程序员才能用几个接口就能写简单程序。
 
-## 2.5 Design Goals
+#### 2.5 Design Goals
 
 1. high performance （minimize the overheads）
 2. protection （isolation）
@@ -66,7 +66,7 @@ OS实现上述主要通过 **virtualization**。OS把物理资源转变成更通
 
 OS创建了CPU的一个虚拟假象：让一群process同时运行。这种基础的技术叫做 **time sharing of the CPU** , 通过 **context switch** ，OS可以停止运行的程序然后开始运行另一个。这种时分技术被所有的现代OS所采用。实现CPU虚拟化，低级别的 **mechanism** 和高级别的 **policy** 共同协作。比如上下文切换属于前者，而调度策略属于后者。
 
-## 4.1 The Abstraction: A Process
+#### 4.1 The Abstraction: A Process
 
 运行的程序的抽象就是process。通过 taking a inventory of the pieces of the system，我们可以概述出一个process。理解构成process的东西就要理解process的 **machine state**。
 
@@ -76,7 +76,7 @@ registers也是machine state的一部分。
 
 部分特殊功能寄存器也是machine state的一部分。举个例子，**program couter**指示当前所运行的指令。**stack pointer** 和对应的 **frame pointer** 用于管理函数栈的参数、局部变量、返回地址等等。
 
-## 4.2 Process API
+#### 4.2 Process API
 
 真实的API在后续章节，这里只给出idea：
 
@@ -86,7 +86,7 @@ registers也是machine state的一部分。
 - Miscellaneous Control：比如让一个程序停止一会又恢复它
 - Status：应该提供一些接口来获取status information
 
-## 4.3 Process Creation: A Little More Detail
+#### 4.3 Process Creation: A Little More Detail
 
 现在我们讨论程序创建成进程的一些细节。第一件OS要做的就是 **Load** 程序代码和静态数据到内存到 address space of the process。在简单的OS中，**loading process** 必须在运行程序前做完，但是现代的OS比较懒，它们会在后续需要时才加载一些代码和数据。后面讲到 **paging and swapping** 时会更加深入。
 
@@ -98,7 +98,7 @@ OS还会做其它的初始化工作，比如和I/O相关的。比如，在UNIX�
 
 PS：现在还有最后一步没讲，程序的入口是main()，通过跳转到main() routine，OS才把CPU的控制移交给新创建好的process，这个程序才真正运行起来了。
 
-## 4.4 Process States
+#### 4.4 Process States
 
  以简单的视角，一个process是三种状态之一：
 
@@ -108,7 +108,7 @@ PS：现在还有最后一步没讲，程序的入口是main()，通过跳转到
 
 ![1544602258924](/img/in-post/虚拟化virtualization.assets/1544602258924.png)
 
-## 4.5 Data Structures
+#### 4.5 Data Structures
 
 OS也是一个程序，就像其它的任务程序一样有关键的数据结构。为了追踪每个process的状态，OS会为那些ready的进程维护某种 **process list**，当然还有那个Process正在running的信息，还要维护那些 blocked process 的信息。 
 
@@ -118,7 +118,7 @@ OS也是一个程序，就像其它的任务程序一样有关键的数据结构
 
 ![1544607056105](/img/in-post/虚拟化virtualization.assets/1544607056105.png)
 
-## 4.6 Summary
+#### 4.6 Summary
 
 学习了进程，从低级角度看，还要知道实现的具体机制；从高级角度看，还要学习调度的策略等。
 
@@ -128,7 +128,7 @@ OS也是一个程序，就像其它的任务程序一样有关键的数据结构
 
 UNIX用一对系统调用：fork()和exec() 提供了创建新process的方法。第三个调用 wait() 用于一个process等待一个自己创建的process的完成。
 
-## 5.1 The fork() System Call
+#### 5.1 The fork() System Call
 
 ![1544628427491](/img/in-post/虚拟化virtualization.assets/1544628427491.png)
 
@@ -136,19 +136,19 @@ fork用于创建一个新的process，以上面的程序为例。第一次开始
 
 PS：这里后续的两个print谁先谁后不知道，因为这取决于CPU的调度分配器。
 
-## 5.2 The wait() System Call
+#### 5.2 The wait() System Call
 
 ![1544680104576](/img/in-post/虚拟化virtualization.assets/1544680104576.png)
 
 这个调用函数用于parent等待它的child进程完成工作。比如在示例程序中，parent process调用wait()来延迟执行直到child完成了执行工作。当child做完之后，wait()就会返回做完的进程的PID到parent。
 
-## 5.3 The exec() System Call
+#### 5.3 The exec() System Call
 
 ![1544681422017](/img/in-post/虚拟化virtualization.assets/1544681422017.png)
 
 fork出来的程序一样，但是往往你想运行的是不同的程序，exec()就是干这个的。但是，它做的是从wc程序开始，用wc的代码和数据覆盖自己的进程信息，OS重新用wc初始化了这个进程，并没有创建什么新的进程。这也是为什么后面的printf没有打印的原因。总而言之，一次成功的对exec()的调用不会返回。
 
-## 5.4 Why?
+#### 5.4 Why?
 
 fork()和exec()的不同之处在构建UNIX shell上非常关键。因为这样就能让 shell 在fork之后，exec之前做一些 about-to-be-run program，因此带来了很多特性。
 
@@ -156,7 +156,7 @@ The shell is just **a user program**. 当你敲入了执行命令后，shell会�
 
 Unix pipes 用相似的方式实现，但是通过 pipe() 系统调用完成的。grep 和 '|' 什么的用法自己搜吧。
 
-## Homework (code)
+#### Homework (code)
 
 1. 同一个变量，哪怕malloc分配到heap中的变量，fork之后就互相独立了，互不影响；
 
@@ -229,7 +229,7 @@ main(int argc, char *argv[])
 
 有很多问题在虚拟化CPU这件事上。首先就是 **performance** ：减少系统的overhead；第二个就是 **control** ：在有效率运行process的同时保持对CPU的控制。Attaining performance while maintaining control 是构建操作系统的核心挑战。
 
-## 6.1 Basic Technique: Limited Direct Execution
+#### 6.1 Basic Technique: Limited Direct Execution
 
 direct execution很简单，就是OS在process list创建一个process entry，分配一些内存空间，加载代码，定位main位置，跳转过去，开始运行用户代码。下图所示：
 
@@ -237,7 +237,7 @@ direct execution很简单，就是OS在process list创建一个process entry，�
 
 但OS怎么确定程序不会乱搞事情呢，而且这么做怎么实现time sharing呢，不加limited，那OS岂不是就和 library 一样了，事情显然不是这么简单。
 
-## 6.2 Problem #1: Restricted Operations
+#### 6.2 Problem #1: Restricted Operations
 
 硬件能够帮助OS提供不同的执行模式。在 **user mode** ，应用没有完全的访问硬件资源的权限。在 **kernel mode** ，OS就能完全访问硬件。有 **trap** 和 **return-from-trap** 这种特殊的指令来实现这种功能。
 
@@ -249,7 +249,7 @@ direct execution很简单，就是OS在process list创建一个process entry，�
 
 上图展示了整个流程，特权指令被加粗显示。
 
-## 6.3 Problem #2: Switching Between Processes
+#### 6.3 Problem #2: Switching Between Processes
 
 解决了上一个问题，那么怎么在两个processes之间切换呢？当一个process在运行，OS就没有运行，既然没有运行，怎么决定切换呢？问题就是CPU怎么恢复控制然后切换进程呢？
 
@@ -287,7 +287,7 @@ PS：硬件和OS都会保存一次register，只不过硬件是隐形的，OS只
 
 
 
-## Homework (Measurement)
+#### Homework (Measurement)
 
 这个homework测试一下系统调用和上下文切换的开销。
 
@@ -297,7 +297,7 @@ PS：硬件和OS都会保存一次register，只不过硬件是隐形的，OS只
 
 # 7 Scheduling: Introduction
 
-## 7.1 Workload Assumptions
+#### 7.1 Workload Assumptions
 
 首先我们把跑在系统上的process称作：**workload**。 决定workload是调度策略的首要任务。但这里我们的 assumptions **不很现实**，不过这不是大问题：
 
@@ -309,7 +309,7 @@ PS：硬件和OS都会保存一次register，只不过硬件是隐形的，OS只
 4. All jobs only use the CPU (they perform no I/O)
 5. The run-time of each job is known.
 
-## 7.2 Scheduling Metrics
+#### 7.2 Scheduling Metrics
 
 除了assumption，我们还要一个**scheduling metric**来衡量不同的调度策略。
 $$
@@ -317,7 +317,7 @@ T_{turnaround}=T_{completioin}-T_{arrival}
 $$
 比如说如果所有任务同时到达，$T_{arrival}=0$ ，那么 $T_{turnaround}=T_{completioin}$。**Fairness** 也是我们的一个metric。但，performance和fairness在scheduling中经常互相抑制。比如优化了性能，但是通过阻止一些jobs的运行为代价，言外之意，降低了fairness。
 
-## 7.3 FIFO
+#### 7.3 FIFO
 
 假设A、B、C按照顺序几乎同时在time 0到达，A运行100s，其它运行10s，看样子 average turnaround time is $\frac{100+110+120}{3}=110$ 
 
@@ -325,11 +325,11 @@ $$
 
 FIFO很简单，但有 **convoy problem** 问题。
 
-## 7.4 Shortest Job First (SJF)
+#### 7.4 Shortest Job First (SJF)
 
  就是字面意思，但是有个问题，如果B和C比A稍微晚一点到，还是要等A完成任务，所以又回到了 **convoy problem** 上。
 
-## 7.5 Shortest Time-to-Completion First (STCF)
+#### 7.5 Shortest Time-to-Completion First (STCF)
 
 上面的两个都是 **preemptive scheduling**，因此一旦运行就会运行完。但是STCF是一种 **non-preemptive scheduling** 因此不会遇到 **convoy problem**。
 
@@ -337,7 +337,7 @@ FIFO很简单，但有 **convoy problem** 问题。
 
 ![1544775381133](/img/in-post/虚拟化virtualization.assets/1544775381133.png)
 
-## 7.6 A New Metric: Response Time
+#### 7.6 A New Metric: Response Time
 
 既然我们知道 job length了，并且jobs都只会用CPU，评价指标 turnaround time 够用了，STCF就是最优的策略了。
 
@@ -347,7 +347,7 @@ T_{response}=T_{firstrun}-T_{arrival}
 $$
 举个例子，在STCF下，ABC的 response time 分别是0,0,10。这样后面的 jobs 的 response time 就很长，用户体验差，问题来了：how to build a scheduler that is sensitive to response time?
 
-## 7.7 Round Robin
+#### 7.7 Round Robin
 
 **Round-Robin Scheduling** 的基本概念很简单：RR runs a job for a **time slice** ，and then switches to the next job in the run queue. Repeatedly does so until the jobs are finished. 因为这样，RR有时候叫做 **time-slicing**。这个time slice长度必须是 timer-interrupt period的倍数。
 
@@ -359,7 +359,7 @@ context switching 的开销不仅仅来自于register的保存恢复，而且还
 
 但是之前的问题又来了，turnaround time在这里就没考虑到了！
 
-## 7.8 Incorporaint I/O
+#### 7.8 Incorporaint I/O
 
 之前一直不考虑I/O，现在考虑上。比如这个例子中，先执行A，然后执行B，因为A需要50ms的CPU使用。但是执行I/O的时候CPU空转，浪费了CPU。
 
@@ -369,7 +369,7 @@ context switching 的开销不仅仅来自于register的保存恢复，而且还
 
 ![1544799204955](/img/in-post/虚拟化virtualization.assets/1544799204955.png)
 
-## 7.10 Summary and Homework
+#### 7.10 Summary and Homework
 
 现在有两种思想方法：1.运行候选中最短job，最优化turnaround time；2.在所有jobs中轮转，优化了response time。下一个chapter学习一个scheduler能解决这个trade-off难题，叫做 **multi-level feedback queue**。
 
@@ -383,7 +383,7 @@ context switching 的开销不仅仅来自于register的保存恢复，而且还
 
 多级反馈队列调度希望解决两个问题：第一，最优化 turnaround time ，但是现实情况OS往往不知道job运行多久，而这些都是 SJF or STCF 需要的前置条件；第二，MLFQ想要让系统尽可能responsive，最小化 response time（RR在 turnaround time方面做的很差）。
 
-## 8.1 MLFQ: Basic Rules
+#### 8.1 MLFQ: Basic Rules
 
 显然MLFQ中有多个队列，每个队列的优先级不同，相同队列的jobs按照RR调度法。MLFQ varies the priority of a job based on its **observed behavior**。意思就是那些多次等待I/O的jobs，提高优先级；长时间密集使用CPU的就降低它们的优先级。通过历史来预测未来的行为。
 
@@ -394,7 +394,7 @@ context switching 的开销不仅仅来自于register的保存恢复，而且还
 
 ![1544929184122](/img/in-post/虚拟化virtualization.assets/1544929184122.png)
 
-## 8.2 Attempt #1: How to Change Priority
+#### 8.2 Attempt #1: How to Change Priority
 
 - Rule 3: 当 job 进入系统后，被放置在最高优先的队列中
 - Rule 4a: 如果 job 用光了整个 time slice，它的优先级降低一档
@@ -402,7 +402,7 @@ context switching 的开销不仅仅来自于register的保存恢复，而且还
 
 至今为止，还有很多问题！第一，**starvation**，如果有太多的interactive jobs，long-running jobs就会一直得不到CPU而饿死；第二，有些jobs会愚弄scheduler，比如在时间片用完前发一个I/O来放弃CPU，这样几乎就独占了CPU；第三，有些jobs会改变自己的行为，比如从CPU密集型变成了interactivity。
 
-## 8.3 Attempt #2: The Priority Boost
+#### 8.3 Attempt #2: The Priority Boost
 
 简单的idea就是周期性地 **boost** 所有jobs的优先级。
 
@@ -412,7 +412,7 @@ context switching 的开销不仅仅来自于register的保存恢复，而且还
 
 上面的例子就对比了加入 rule 5 的优势，但是S该设置多大呢？其实S的设置就是一个 **voo-doo constants** 。意思就是没什么固定的方法去遵循，太大了，long-running jobs will starve, 太小了，interactive jobs 可能反应迟钝。
 
-## 8.4 Attempt #3: Better Accounting
+#### 8.4 Attempt #3: Better Accounting
 
 现在考虑该怎么避免调度器被小伎俩玩耍。用更新的 **Rule 4**
 
@@ -422,13 +422,13 @@ context switching 的开销不仅仅来自于register的保存恢复，而且还
 
 ![1545379921486](/img/in-post/虚拟化virtualization.assets/1545379921486.png)
 
-## 8.5 Tuning MLFQ and Other issues
+#### 8.5 Tuning MLFQ and Other issues
 
 怎么参数化 MLFQ 呢？其实没什么标准，一切全靠经验，根据不同的 workloads 进行不同的调整。
 
 比如大部分的MLFQ变种都根据不同的优先级队列，设置不同的 time slice，越高优先级的 slice 越短。solaris 用的是配置法，freebsd用的是数学计算法（根据历史行为）
 
-## 8.6 MLFQ：Summary & Homework
+#### 8.6 MLFQ：Summary & Homework
 
 - Rule 1: If Priority(A) > Priority(B), A runs (B doesn’t).
 - Rule 2: If Priority(A) = Priority(B), A & B run in RR.
@@ -452,7 +452,7 @@ context switching 的开销不仅仅来自于register的保存恢复，而且还
 
 # 13 The Abstraction: Address Spaces
 
-## 13.1 Early Systems
+#### 13.1 Early Systems
 
 从内存的角度，早期的系统没有什么内存的抽象层，所以呢，一般机器的物理内存看起来如下图13.1所示：
 
@@ -460,7 +460,7 @@ context switching 的开销不仅仅来自于register的保存恢复，而且还
 
 那时OS其实就是一些方法的集合（可以称为 library）。程序用比如64KB后的地址空间，一切都很简单！！！
 
-## 13.2 Multiprogramming and Time Sharing
+#### 13.2 Multiprogramming and Time Sharing
 
 过了一段时间，因为机器的昂贵价格，用户希望更有效地共用机器。这个时候 **multiprogramming** 技术诞生了，OS可以在不同进程之间切换，一个用I/O的时候，就切到另一个（之前讨论了）。
 
@@ -470,7 +470,7 @@ context switching 的开销不仅仅来自于register的保存恢复，而且还
 
 以上图为例，这三个进程A、B、C，每一个拥有512KB内存切出的一小部分。后来呢，安全也被人注意了，一个进程应该被设置不访问其他的内存空间。
 
-## 13.3 The Address Space
+#### 13.3 The Address Space
 
 所以我们要做一个容易使用的物理内存的抽象给进程，这个抽象就叫 **address space** ，这是进程的一个看内存的视角。进程的地址空间包含了该程序用到的所有内存状态。比如：1.**代码** 2.**stack**（用来追踪在函数调用链中的位置）3.**heap**（动态内存分配用的，比如C++ new 一个东西）4.其它的杂七杂八（比如静态的初始化变量等）
 
@@ -482,7 +482,7 @@ context switching 的开销不仅仅来自于register的保存恢复，而且还
 
 ![1545728470676](/img/in-post/虚拟化virtualization.assets/1545728470676.png)
 
-## 13.4 Goals
+#### 13.4 Goals
 
 我们让OS虚拟化内存有以下几个目标：
 
@@ -498,7 +498,7 @@ OS应该努力让虚拟化更有效率，在时间和空间两方面都有效率
 
 OS保证每个程序免受其它程序的干扰。
 
-## 13.5 Summary and Homework
+#### 13.5 Summary and Homework
 
 总而言之，VM系统负责提供一个巨大的、稀疏的、私有的地址空间假象给程序。OS在某些硬件的帮助下，把虚拟地址翻译成实际的物理地址。
 
@@ -510,13 +510,13 @@ OS保证每个程序免受其它程序的干扰。
 
 # 14 Memory API
 
-## 14.1 Types of Memory
+#### 14.1 Types of Memory
 
 程序会分配两类内存，一种叫 **stack** memory，由编译器帮你管理这部分分配的内存（自动化）。你要声明一块用于 stack 的内存很简单，比如：`int x;` 即可。当你从函数返回出去，编译器为你释放这部分。
 
 如果要更长的存储寿命，应该分配到 **heap** memory中，这部分由你手动地控制。
 
-## 14.2 The malloc() Call
+#### 14.2 The malloc() Call
 
 void *malloc(size_t size);
 
@@ -524,11 +524,11 @@ size_t表示你要在参数中写明你要分配多少字节，不过一般不�
 
 malloc返回的是一个地址，我们可以加入类型转换以声明我们要怎么用这个返回的地址。
 
-## 14.3 The free() Call
+#### 14.3 The free() Call
 
 free接收一个参数，就是malloc返回的那个地址，你不用主动告诉它要free多少size，因为 memory-allocation library 自己会追踪这些的。
 
-## 14.4 Common Errors
+#### 14.4 Common Errors
 
 正确的内存管理一直是个难题，有些语言支持 **自动内存管理** ，自动回收 new 出来的空间，这种玩意叫 **garbage collector**。
 
@@ -557,7 +557,7 @@ free接收一个参数，就是malloc返回的那个地址，你不用主动告�
 **5 重复释放内存**
 **6 错误地调用 free()**
 
-## 14.5 Summary and Homework
+#### 14.5 Summary and Homework
 
 刚刚讨论地那些其实不是 system call，因为它们是库函数，是系统调用的封装。
 
@@ -612,7 +612,7 @@ Program received signal SIGSEGV, Segmentation fault.
 
 OS必须参与其中，这叫做 **mange memory** ，追踪哪些是free的，那些是used的。
 
-## 15.1 Assumptions
+#### 15.1 Assumptions
 
 我们的尝试非常简单，这种做法在以后学完多级页表时，会很可笑。先不管了，继续吧。
 
@@ -620,7 +620,7 @@ OS必须参与其中，这叫做 **mange memory** ，追踪哪些是free的，�
 
 听起来扯淡！但是后面我们会慢慢变得现实起来。
 
-## 15.2 An Example
+#### 15.2 An Example
 
 ![1545819820843](/img/in-post/虚拟化virtualization.assets/1545819820843.png)
 
@@ -628,7 +628,7 @@ OS必须参与其中，这叫做 **mange memory** ，追踪哪些是free的，�
 
 比如说上面这个程序，在物理内存就如上图所示。但是它自己以为自己从0开始到16KB。所以真实的物理内存中，只有1个 16KB 的slot是占用状态。
 
-## 15.3 Dynamic Relocation (基于硬件)
+#### 15.3 Dynamic Relocation (基于硬件)
 
 这种方式需要两个寄存器，一个叫做 base 寄存器，一个叫做 bound 寄存器。所以呢当有内存引用时，`physical address = virtual address + base`
 
@@ -640,7 +640,7 @@ OS必须参与其中，这叫做 **mange memory** ，追踪哪些是free的，�
 
 这种协助性质的硬件有人叫做它 **memory management unit** (MMU) 。MMU不止这些简单的功能，后面我们会丰富它。
 
-## 15.4 Hardware Support: A summary
+#### 15.4 Hardware Support: A summary
 
 现在总结一下至今我们从 **硬件** 部分获得的支持。
 
@@ -654,7 +654,7 @@ base 和 bounds 寄存器是CPU 的 MMU 的一部分。用来翻译虚拟地址�
 
 ![1545821288294](/img/in-post/虚拟化virtualization.assets/1545821288294.png)
 
-## 15.5 Operating System Issues
+#### 15.5 Operating System Issues
 
 OS和硬件结合才能实现虚拟化内存，这就是本节内容。
 
@@ -672,7 +672,7 @@ OS和硬件结合才能实现虚拟化内存，这就是本节内容。
 
 ![1545822312393](/img/in-post/虚拟化virtualization.assets/1545822312393.png)
 
-## 15.6 Summary and Homework
+#### 15.6 Summary and Homework
 
 这一节基于 limited direct execution 的背景，我们加入了虚拟内存（**address translation**）。
 
@@ -684,7 +684,7 @@ OS和硬件结合才能实现虚拟化内存，这就是本节内容。
 
 接上一节，直接用 base and bounds ，会有很多的 free space 浪费掉，太浪费了！
 
-## 16.1 Segmentation: Generalized Base/Bounds
+#### 16.1 Segmentation: Generalized Base/Bounds
 
 为了解决，可以用 **segmentation** 的观点。一个segment是地址空间中特定长的一个部分，我们可以对于每个segment都弄出一个base and bounds pair。
 
@@ -694,7 +694,7 @@ OS和硬件结合才能实现虚拟化内存，这就是本节内容。
 
 ![1545828486095](/img/in-post/虚拟化virtualization.assets/1545828486095.png)
 
-## 16.2 which segment is being referred?
+#### 16.2 which segment is being referred?
 
 一种常见的 **显式** 方法是在虚拟地址的头几位声明。比如下图展示的就是 VAX/VMS 系统用的技术，00代表 code ，01代表 heap。后面的 offset 是偏移量，加上基址就能算出 真实地址 啦。而且 offset 有个好处，可以直接通过这个 offset 看出来超没超 bounds。
 
@@ -702,25 +702,25 @@ OS和硬件结合才能实现虚拟化内存，这就是本节内容。
 
 当然 **隐式** 的方法就是从寄存器来判断，比如，PC的地址那就是CODE段，如果 base pointer 就是stack，其它的在 heap 。
 
-## 16.3 What about the Stack?
+#### 16.3 What about the Stack?
 
 之前一直不讨论 stack ，因为stack不一样，它是负增长的。除了 base 和 bounds 我们还需要一个位来表示增长方向。更新后的段寄存器如下图：
 
 ![1545830190862](/img/in-post/虚拟化virtualization.assets/1545830190862.png)
 
-## 16.4 Support for Sharing
+#### 16.4 Support for Sharing
 
 ![1545830327923](/img/in-post/虚拟化virtualization.assets/1545830327923.png)
 
 为了支持 sharing，我们还要一个 protection bits ，用来指示这个程序的读写权限。把CODE设置为只读，就可以在不同的进程共享代码段，而每个进程都以为这就是自己的CODE段。上图的例子中的配置下，同一个物理上的CODE段就能被映射到多个虚拟地址空间里。
 
-## 16.5 Fine-grained vs. Coarse-grained Segmentation
+#### 16.5 Fine-grained vs. Coarse-grained Segmentation
 
 我们之前的 segments 都很少，说明这是 Coarse-grained （粗粒度）的。但是，一些早先的系统允许可以由大量的更小的段构成，被称作Fine-grained（细粒度）。
 
 支持更多的段意味着更复杂的硬件支持功能，也就是一个存在 memory 中的 **segment table**。比如有些系统在编译的时候切割code和data成多个小段，由这个 table 管理。
 
-## 16.6 OS support
+#### 16.6 OS support
 
 有一些新的问题出来了，主要是OS的。第一个，OS在 context switch 的时候做什么？很显然，保存恢复 segment register 啦。第二个，也是重要的一个，创建 进程 时怎么从 free space 里分配出来空间呢？之前每个进程都是固定size，现在都是可变的啦。
 
@@ -730,7 +730,7 @@ OS和硬件结合才能实现虚拟化内存，这就是本节内容。
 
 一个简单的解决办法就是用一个 free-list management 算法追踪可用分配的内存区域。比如有 **best-fit** 算法（追踪一个free space 的 list，然后返回和申请的size最接近的那个）；稍微复杂的算法有 **buddy algorithm** 。不过，这些算法再智能，还是不能完全解决外部碎片，所以当没有可分配的时候只能整理全部内存来实现压缩了。
 
-## 16.7 Summary and Homework
+#### 16.7 Summary and Homework
 
 又进一步让内存更有效率了，但是问题也在：1.外部碎片 2.还是无法完全解决利用我们 sparse address space 的问题，比如一个heap，就算只有某一小部分，也必须全部放在内存中。
 
@@ -740,14 +740,14 @@ OS和硬件结合才能实现虚拟化内存，这就是本节内容。
 
 这一节，先绕道讨论下空闲空间的管理。如果 free space 是由一些变长的单元组成，管理很蛮烦。比如有30字节，中间的10字节被占用了，前后各10字节，如果申请15字节的就无处可放。这一节就是解决这个问题的。
 
-## 17.1 Assumptions
+#### 17.1 Assumptions
 
 1. 基本的软件接口是 malloc 和 free
 2. 主要考虑外部碎片
 3. 如果一片内存被申请过去了，就没法重定向到其它申请者
 4. allocator 管理的是连续的邻接字节区域
 
-## 17.2 Low-Level Mechanisms
+#### 17.2 Low-Level Mechanisms
 
 **分离-合并**
 
@@ -828,7 +828,7 @@ head->next = NULL;
 
 如果heap用完了，该怎么办？大部分 unix 系统使用 sbrk 命令申请更多的空间，OS把一些 free page map到进程的地址空间中，然后扩大之前 heap 的尾部限制。
 
-## 17.3 基本策略
+#### 17.3 基本策略
 
 最理想的分配策略肯定是 fast 并且 minimize fragmentation。但是不同的Inputs，结果差别巨大，所以各有各的特点把！
 
@@ -844,7 +844,7 @@ head->next = NULL;
 
 加一个额外的指针在 free list，两个指针同时找 符合条件的 第一个block，意思就是更均匀
 
-## 17.4 高级方法
+#### 17.4 高级方法
 
 上面那些太基本了，后面这些方法高级些：
 
@@ -874,7 +874,7 @@ head->next = NULL;
 
 前面讲过了，OS一般用两种方法解决空间管理，一种是 **segmentation**；一种是 **paging**。前者有外部碎片，后者就是解决外部碎片的，分成固定长度的 page，一个 物理内存上的 page frame 对应虚拟内存上的一个 page。
 
-## 18.1 An Example and Overview
+#### 18.1 An Example and Overview
 
 ![1546245097465](/img/in-post/虚拟化virtualization.assets/1546245097465.png)
 
@@ -896,13 +896,13 @@ head->next = NULL;
 
 ![1546246976946](/img/in-post/虚拟化virtualization.assets/1546246976946.png)
 
-## 18.2 Where are page table stored?
+#### 18.2 Where are page table stored?
 
 因为 page table 过于巨大，我们不能把当前运行的程序的对应页表放在MMU里。所以**暂时**只能放在内存中！！！
 
 ![1546247683665](/img/in-post/虚拟化virtualization.assets/1546247683665.png)
 
-## 18.3 What's in the Page Table?
+#### 18.3 What's in the Page Table?
 
 简单的实现就是用一个线性的页表，说白了就是数组，用 VPN 来索引这个数组，查询 page-table entry（PTE）来找到 physical frame number（PEN）。
 
@@ -920,7 +920,7 @@ head->next = NULL;
 
 ![1546248771388](/img/in-post/虚拟化virtualization.assets/1546248771388.png)
 
-## 18.4 Paging: Too Slow
+#### 18.4 Paging: Too Slow
 
 现在继续考虑这个页表，它或许还是太慢了，具体情况如下：当硬件要找页表时，通过一个 **page-table-register** 找到当前运行进程对应的页表存放的物理地址，为了找到特定的PTE，硬件做如下操作：
 
@@ -943,13 +943,13 @@ PTEAddr = PageTableBaseRegister + (VPN * sizeof(PTE))
 
 OS的老朋友：hardware可以帮助我们。为了加速地址翻译，**translation-lookaside-buffer (TLB)** 诞生了，TLB是MMU的一部分。在每次虚拟内存的引用中，硬件先检查TLB看看期望的translation是否在那里，如果在就直接翻译（快）而不用查page table了。
 
-## 19.1 TLB基本的算法
+#### 19.1 TLB基本的算法
 
 ![1546347553901](/img/in-post/虚拟化virtualization.assets/1546347553901.png)
 
 上图展示了一个粗略的过程。首先检查TLB有没有对应的VPN，如果有就说**TLB hit**了。从TLB的entry中提取PFN并访问；如果 **miss** 了，访问 page table 去看真正的PFN是什么。TLB就像一个cache，我们希望miss尽可能的少。
 
-## 19.2 Example: 访问一个数组
+#### 19.2 Example: 访问一个数组
 
 ![1546410966914](/img/in-post/虚拟化virtualization.assets/1546410966914.png)
 
@@ -959,7 +959,7 @@ page size 在这个例子中扮演了重要的角色。如果 size 更大，那�
 
 **时间局部性：** 如果TLB很大，那么短时间访问地数据就会更容易hit
 
-## 19.3 谁处理TLB Miss?
+#### 19.3 谁处理TLB Miss?
 
 硬件还是OS？
 
@@ -973,7 +973,7 @@ page size 在这个例子中扮演了重要的角色。如果 size 更大，那�
 
 用OS来处理的话，**灵活性** 和 **简单性** 非常棒。
 
-## 19.4 TLB里面有什么？
+#### 19.4 TLB里面有什么？
 
 一个普通的TLB可能有32、64、128个entries，并且是 **全相联** 的。这说明一个 translation 可能在TLB的任何地方，TLB的一个entry可能看起来如下：
 
@@ -983,25 +983,25 @@ page size 在这个例子中扮演了重要的角色。如果 size 更大，那�
 
 other bits 里存的有 **valid bit** 和 **protection bit** 等，还有其它的各种额外bit信息。
 
-## 19.5 TLB的问题
+#### 19.5 TLB的问题
 
-#### context switch
+######### context switch
 
 不同的进程的地址空间对应不同的页表，而每次更换进程就清空TLB开销过大，所以加入额外的bit指示这个 translation 是谁的，这样就算有同样的 VPN 也不会搞混了。ASID（**address space identifier**）就是干这个活的。
 
 ![1546413897279](/img/in-post/虚拟化virtualization.assets/1546413897279.png)
 
-#### Replacement Policy
+######### Replacement Policy
 
 当替换一个旧的entry时，一般替换 **least-recently-used** (LRU) entry。
 
-## 19.7 一个真正的TLB entry
+#### 19.7 一个真正的TLB entry
 
 ![1546414079888](/img/in-post/虚拟化virtualization.assets/1546414079888.png)
 
 （本节内容略）
 
-## 19.8 总结
+#### 19.8 总结
 
 硬件可以帮助我们做地址翻译，一个小型的、专用的片上TLB可以作为地址翻译的cache。
 
@@ -1013,7 +1013,7 @@ other bits 里存的有 **valid bit** 和 **protection bit** 等，还有其它�
 
 一个暴力的方法就是增大单个Page size，这样减少不了多少page table 的 size，而且**内部碎片**的问题更加严重。
 
-## 20.2 Hybrid Approach: paging and segments
+#### 20.2 Hybrid Approach: paging and segments
 
 一种方法结合了 paging 和 segmentation 来减少 page table 的内存开销。
 
@@ -1033,7 +1033,7 @@ bounds寄存器在这种段页式管理中很重要，比如一个段只用了�
 
 最后你还是注意到了，这个方法不是完美的。第一，又要使用 segmentation，说过了！扩展性不好！第二，带来外部碎片！而且每个段 page table 的大小不固定了，系统的复杂度很高。为此，设计者提出了更好的办法。
 
-## 20.3 Multi-level Page tables
+#### 20.3 Multi-level Page tables
 
 前面的技术给了一个好的思路，可以避免page table中的无效部分。一个像树型结构的 **multi-level page table** 技术诞生了，这个技术非常有效率，很多现代系统都在用。
 
@@ -1045,7 +1045,7 @@ bounds寄存器在这种段页式管理中很重要，比如一个段只用了�
 
 但是注意！TLB miss后现在需要两次load了，一次是 page directory，一次是PTE本身。这是个 **time-space trade-off**。所以在这些更小的table的情况中，TLB miss造成了更大的开销。而且为了节约内存，我们让系统支持多级页表更加复杂化。
 
-#### A Detailed Multi-level Example
+######### A Detailed Multi-level Example
 
 ![1546437128178](/img/in-post/虚拟化virtualization.assets/1546437128178.png)
 
@@ -1073,7 +1073,7 @@ bounds寄存器在这种段页式管理中很重要，比如一个段只用了�
 
 
 
-#### More Than Two Levels
+######### More Than Two Levels
 
 ![1546438233283](/img/in-post/虚拟化virtualization.assets/1546438233283.png)
 
@@ -1081,7 +1081,7 @@ bounds寄存器在这种段页式管理中很重要，比如一个段只用了�
 
 
 
-#### Remember the TLB
+######### Remember the TLB
 
 ![1546438322464](/img/in-post/虚拟化virtualization.assets/1546438322464.png)
 
@@ -1095,13 +1095,13 @@ bounds寄存器在这种段页式管理中很重要，比如一个段只用了�
 
 我们现在要支持很大的地址空间，这可以让进程不用考虑是否在内存不够的时候换出到磁盘中，OS做这件事，进程以为自己的东西都在 memory 中。
 
-## 21.1 Swap Space
+#### 21.1 Swap Space
 
 第一件事，在外存中保留一个space用于把page来回地交换，这叫做 **swap space**。现在我们假设OS可以以page为单位从 swap space 来回读取，OS需要记住特定page在外存中的位置。
 
 ![1546484576557](/img/in-post/虚拟化virtualization.assets/1546484576557.png)
 
-## 21.2 The present bit
+#### 21.2 The present bit
 
 先来回忆下：进程生成了一次虚拟内存的引用，硬件从VPN中提取虚拟地址，检查TLB，如果hit直接返回物理地址从内存访问；但是miss了，就用 **page table base register** 定位到内存中，查询PTE，把PTE的PFN装载进TLB，然后hit。
 
@@ -1109,7 +1109,7 @@ bounds寄存器在这种段页式管理中很重要，比如一个段只用了�
 
 遇到 page fault，OS被唤醒处理这次page fault，这部分处理代码叫 **page-fault handler**。
 
-## 21.3 The Page Fault
+#### 21.3 The Page Fault
 
 声明：不管硬件还是软件管理TLB，page fault都是OS处理的。
 
@@ -1117,11 +1117,11 @@ bounds寄存器在这种段页式管理中很重要，比如一个段只用了�
 
 注意：在 I/O 的时候，进程是 **blocked** 状态，因此OS可以选择其它的进程来运行。
 
-## 21.4 What if Memory is Full?
+#### 21.4 What if Memory is Full?
 
 如果内存满了，又要给新的page腾出空间，那么选择一个page踢出内存的进程叫：**page-replacement policy**
 
-## 21.5 Page Fault Control Flow
+#### 21.5 Page Fault Control Flow
 
 ![1546493015494](/img/in-post/虚拟化virtualization.assets/1546493015494.png)
 
@@ -1129,7 +1129,7 @@ bounds寄存器在这种段页式管理中很重要，比如一个段只用了�
 
 现在根据上面两个图，还有我们学到的这些知识（Naive！！！）已经可以粗略地描绘出 memory access 的控制流程。
 
-## 21.6 When replacements really occur
+#### 21.6 When replacements really occur
 
 以上我们讨论的都是当memory全满了才替换出一页，这样其实不切实际的。OS一般情况是保持一小片的 free memory，而不是最后才替换。
 
@@ -1141,7 +1141,7 @@ bounds寄存器在这种段页式管理中很重要，比如一个段只用了�
 
 How to decide which page to evict ?
 
-## 22.1 Cache Management
+#### 22.1 Cache Management
 
 阐述下我们解决的目标：main memory可以**看作cache**，那么那么设计替换策略让cache miss最小。最大化 cache hit。
 
@@ -1151,7 +1151,7 @@ Tm代表访问内存的开销，Td代表访问磁盘的开销，Phit代表命中
 
 因为TD很大，所以哪怕Pmiss很小，最终AMAT还是很大。所以设计一个聪明的 policy 至关重要。
 
-## 22.2 The Optimal Replacement Policy
+#### 22.2 The Optimal Replacement Policy
 
 在分析某个置换算法前，先学下最优的置换算法。这种算法可以实现最少的Misses，但却很难实现。
 
@@ -1159,7 +1159,7 @@ Tm代表访问内存的开销，Td代表访问磁盘的开销，Phit代表命中
 
 问题：你无法知道谁是未来最久才会访问的，因为你没法预知未来！
 
-## 22.5 LRU
+#### 22.5 LRU
 
 > 有两个简单的笨方法 FIFO 和 Random，跳过了
 
