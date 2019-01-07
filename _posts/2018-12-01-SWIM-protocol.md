@@ -26,7 +26,7 @@ SWIM是一个著名的分布式系统成员协议，它基于Gossip发展而来�
 
 ## 4 SWIM怎么做的
 说了这么多废话，SWIM在每个周期的检测流程如下：一个node A发送`ping`给list中的随机一个node（比如就叫B吧），如果B收到了就返回`ack`给A。但是如果A没在预定的时间（小于周期T）内收到这个`ack`，它会在list中随机挑选 k 个node并发送 `ping-req(B)`请求它们帮助自己来确认B是否活着，若没有任何一个node告诉A说B活着，那A认为B死了，并把它从list中移除，然后广播到整个网络中去。当然最好的情况是它没死，别人替它返回了 `ack` ，示意图如下：
-![](/img/in-post/SWIM%20The%20scalable%20membership%20protocol/bear_sketch@2x.png)
+![](/img/in-post/SWIM%20The%20scalable%20membership%20protocol/bear_sketch@2x 2.png)
 
 > 总结一下它的做法：这里面有两个关键参数，即协议的周期时间T和随机选择的子集大小k。上图的整个过程都发生在一个T以内。SWIM的精妙之处在于它利用了网络中的其它节点帮它发送消息，避免了A和B之间的网络拥塞。  
 
