@@ -15,7 +15,7 @@ tags:
 
 # 36 I/O Devices
 
-## 36.1 System Architecture
+#### 36.1 System Architecture
 
 开始讨论前，看一下典型系统的结构。一个CPU连接到了 **memory bus**。一些设备通过 **General I/O bus** 连到系统中，一般是 **PCI** （或者代替者）；高性能 I/O 设备就在这条线上。剩下的就是慢速设备用的总线，**Peripheral I/O Bus**就是干这个工作的。
 
@@ -27,13 +27,13 @@ tags:
 
 ![1547527623499](/img/in-post/持久性Persistence.assets/1547527623499.png)
 
-## 36.2 一个规范设备
+#### 36.2 一个规范设备
 
 这里说的不是真正的设备，而是便于理解。下图看出两个重要的部分。第一个是硬件的 **interface**，向系统以外的部分展示的就是接口而已。第二个部分就是 **internal structure**。这部分是为了给系统提供一个抽象层，里面可能有些许芯片，一些复杂的设备里甚至有简单的CPU，也可能有通用存储器或者设备专用芯片。举个例子，现代的RAID控制器可能包含成百上千行代码的 **firmware**。
 
 ![1547040838064](/img/in-post/持久性Persistence.assets/1547040838064.png)
 
-## 36.3 规范协议
+#### 36.3 规范协议
 
 上图是一个最简单的device，interface包含3个寄存器，一个 **status register** 用于读取当前设备的状态；一个 **command register** 用于告诉设备执行一个特定任务；一个 **data register** 用于从设备输入或输出数据。通过读写这些寄存器，OS可以控制设备的行为。
 
@@ -41,7 +41,7 @@ tags:
 
 ![1547041731780](/img/in-post/持久性Persistence.assets/1547041731780.png)
 
-## 36.4 用中断降低CPU的开销
+#### 36.4 用中断降低CPU的开销
 
 程序一直等不现实，所以当程序执行一次I/O，OS发起了一个请求，把调用的进程休眠，然后执行另一个进程，当设备完成操作后，发起一个硬件中断，让CPU跳到OS预先定义的 **interrupt service routine (ISR)** 。这个handler就是OS写的一些代码，完成这次I/O请求并唤醒那个请求的进程。
 
@@ -53,7 +53,7 @@ tags:
 
 另一个基于中断的优化是 **coalescing** 。就是一个确定的中断要产生前，等一小会让其它的请求继续处理，这样做可以把某一批的中断聚合一起做了。不过等太长也不好，要找一个 trade-off 。
 
-## 36.5 用DMA实现效率地数据移动
+#### 36.5 用DMA实现效率地数据移动
 
 不幸地，传输数据本身也要占用CPU，之前讨论都忽视了这点，如果加上数据拷贝时间，即"c"，下图：
 
@@ -66,7 +66,7 @@ OS告诉DMA data在内存的地址，拷贝多少，哪个设备。DMA完成后�
 
 从这个 timeline，你看得出CPU在拷贝时处于空闲可以做其它事情。
 
-## 36.6 设备交互的方法
+#### 36.6 设备交互的方法
 
 第一种（老）：显示地执行 **I/O instructions**。指令声明了一个发送到特定设备的路径。比如在X86中，in 和 out 指令用于和设备通信。caller需要指定寄存器，指定device的端口。
 
@@ -76,7 +76,7 @@ OS告诉DMA data在内存的地址，拷贝多少，哪个设备。DMA完成后�
 
 后者的方法不需要增加什么新的指令，所以是最好的方法。
 
-## 36.7 适配OS：设备驱动
+#### 36.7 适配OS：设备驱动
 
 OS中有一部分代码确切地知道设备工作的细节。这部分软件就是 **device driver**，它们知道设备的接口信息。下图是一个粗略的描述Linux软件的组织形式。跨越层级的时候都是透明的。
 
@@ -86,7 +86,7 @@ OS中有一部分代码确切地知道设备工作的细节。这部分软件就
 
 所以说OS中代码大部分都是驱动，而且这些驱动代码大部分并没工作，因为你的设备不可能一次插入非常多的设备。
 
-## 36.8 例子：简单的IDE磁盘驱动
+#### 36.8 例子：简单的IDE磁盘驱动
 
 一个IDE磁盘提供一个简单接口给系统，4种类型的寄存器：control, command block, status, error。这些寄存器通过读写专用的 ”I/O地址“ 生效。
 
@@ -111,7 +111,7 @@ OS中有一部分代码确切地知道设备工作的细节。这部分软件就
 
 在三个主题之一虚拟化，我们知道进程是CPU的虚拟化，地址空间是内存的虚拟化。现在进入 **persistent storage**。这里的数据都是非易失性。
 
-## 39.1 Files and Directories
+#### 39.1 Files and Directories
 
 - 文件很简单，就是线性的字节数组。文件通常有一个 **Low-level name**。因为历史缘故，low-level name叫做 **inode number**，后面会提到现在仅仅假设每个file都有对应的inode number。OS不知道文件的结构，不知道里面存了什么类型的东西，FS负责存储文件，确保你要用的时候找到它。
 
@@ -121,7 +121,7 @@ OS中有一部分代码确切地知道设备工作的细节。这部分软件就
 
 文件的后缀名往往是惯例，没有强制说 .c 文件里存的就是C源码。
 
-## 39.3 Creating files
+#### 39.3 Creating files
 
 通过 `open` 系统调用，通过调用 open() 传递一个 O_CREAT 的flag，程序可以创建一个新的文件。
 
@@ -135,7 +135,7 @@ int fd = open("foo", O_CREAT | O_WRONLY | O_TRUNC);
 
 > 文件指针结构体里有一些信息，其中一个成员就是对应的文件描述符
 
-## 39.4 读写文件
+#### 39.4 读写文件
 
 ![1547520242548](/img/in-post/持久性Persistence.assets/1547520242548.png)
 
@@ -145,7 +145,7 @@ int fd = open("foo", O_CREAT | O_WRONLY | O_TRUNC);
 
 运行的进程已经有3个文件描述符了，0：标准输入，1：标准输入，2：标准错误。所以打开一个文件分配的就是3了。read的第一个参数是fd，第二个参数是读取的buffer，第三个是buffer的size，比如4KB。
 
-## 39.5 读写文件，但非顺序
+#### 39.5 读写文件，但非顺序
 
 使用 lseek() 系统调用，函数原型如下：
 
@@ -169,7 +169,7 @@ file structures 通过一个 **open file table** 来索引，xv6把这些组织�
 
 上图就是一个例子，一个进程打开了两次文件，那么它们分别有一个偏移量记录。记录在对应的array中。
 
-## 39.6 Shared File Table entry: fork() 和 dup()
+#### 39.6 Shared File Table entry: fork() 和 dup()
 
 一般情况下，文件描述符和 open file table 的入口一一映射，但是有特例。
 
@@ -181,7 +181,7 @@ file structures 通过一个 **open file table** 来索引，xv6把这些组织�
 
 另一个共享entry的例子是 dup()。这个调用允许进程创建一个文件描述符引用到已经打开的一个描述符上。
 
-## 39.7 用 fsync() 立即写
+#### 39.7 用 fsync() 立即写
 
 之前write的时候只是给OS一个请求，可能会过一会才真正的发起I/O操作。但如果想立刻写入，比如DBMS需要这个操作，用额外的控制API叫做 fsync( int fd )。这个操作强制把 **dirty data (还没写入的)**写入到磁盘。当写入完成后，fsync才返回。
 
@@ -189,7 +189,7 @@ file structures 通过一个 **open file table** 来索引，xv6把这些组织�
 
 ![1547523083290](/img/in-post/持久性Persistence.assets/1547523083290.png)
 
-## 39.8 重命名文件
+#### 39.8 重命名文件
 
 mv foo bar 用命令行可以重命名，追踪系统调用，它执行了 rename( char *old, char *new )
 
@@ -199,7 +199,7 @@ mv foo bar 用命令行可以重命名，追踪系统调用，它执行了 renam
 
 ![1547525741135](/img/in-post/持久性Persistence.assets/1547525741135.png)
 
-## 39.9 获取文件信息
+#### 39.9 获取文件信息
 
 除了文件访问，希望文件系统记录文件的有关信息。这样的data叫做 **metadata**。使用 stat() 调用可以直接看到文件的metadata。这个调用填充如下的数据结构：
 
@@ -207,17 +207,17 @@ mv foo bar 用命令行可以重命名，追踪系统调用，它执行了 renam
 
 这样的信息我们叫做 **inode**，至今你先把它想成FS维护的一个和某个文件有关的数据结构。inodes一般在外存，但是一部分copy会缓存到memory以加速访问。
 
-## 39.10 删除文件
+#### 39.10 删除文件
 
 在命令行删除文件是 `rm`，但是rm的时候相关的系统调用是 `unlink()`，为了理解这个需要学习目录。
 
-## 39.11 创建目录
+#### 39.11 创建目录
 
 用户不能直接写入信息到目录，因为目录的格式是FS metadata。你只能间接地更新一个目录（比如创建目录，创建文件等）这样FS才能保证目录地信息是期望地格式。
 
 当目录创建后，虽然空，但是还是有一些最小内容。一个entry指向它自己，一个entry指向它的父辈。
 
-## 39.12 读取目录
+#### 39.12 读取目录
 
 ![1547540950454](/img/in-post/持久性Persistence.assets/1547540950454.png)
 
@@ -229,11 +229,11 @@ mv foo bar 用命令行可以重命名，追踪系统调用，它执行了 renam
 
 因为目录里没有存什么信息，程序有可能调用 `stat()` 来获取更多的其它信息。
 
-## 39.13 删除目录
+#### 39.13 删除目录
 
 调用 `rmdir()` 删除一个空的目录，非空的话报错。
 
-## 39.14 硬链接
+#### 39.14 硬链接
 
 之前谈到，删除一个文件执行 `unlink()` 调用。那么反过来就有一个 `link()`，它接收两个参数，old pathname 和 new pathname，新的文件名指向旧的那个。
 
@@ -251,13 +251,13 @@ mv foo bar 用命令行可以重命名，追踪系统调用，它执行了 renam
 
 ![1547546364698](/img/in-post/持久性Persistence.assets/1547546364698.png)
 
-## 39.15 符号链接
+#### 39.15 符号链接
 
 硬链接的相反就是软链接（**soft link**）。硬链接有限制，你不能链接到一个目录；不能在不同的分区下链接，因为inode number在同一个文件系统下才有效。
 
 创建这样的链接要用到 `ln -s`。符号链接就是那个文件自身。它只是存储了路径名字，所以符号链接生成的文件大小只和路径长度有关（有趣！）
 
-## 39.16 权限
+#### 39.16 权限
 
 下层的操作系统使用各种技术以安全可靠的方式共享有限的物理资源。文件系统也提供了一个磁盘的虚拟化视角，把磁盘“好像”从一堆原始的块转变成更加用户友好的文件和目录。但是这个抽象和CPU、Memory里的那种十分不同。因为文件是人人都有可能访问到的。
 
@@ -271,7 +271,7 @@ mv foo bar 用命令行可以重命名，追踪系统调用，它执行了 renam
 
 ower可以轻易改变权限，举个例子，同过chmod命令。
 
-## 39.17 制作并挂载FS
+#### 39.17 制作并挂载FS
 
 如何从这么多的文件系统组装一个完整的目录树？
 
@@ -291,7 +291,7 @@ give the tool, as input, a device (such as a disk partition, e.g., /dev/sda1) an
 
 这一章节介绍一个 **very simple file system**。文件系统和进程内存不一样，不需要额外的硬件，纯软件！
 
-## 40.1 思考的方式
+#### 40.1 思考的方式
 
 思考下面两个方面：
 
@@ -300,7 +300,7 @@ give the tool, as input, a device (such as a disk partition, e.g., /dev/sda1) an
 
 学习FS从两个方面思考很简单！
 
-## 40.2 整体结构
+#### 40.2 整体结构
 
 现在我们开发的一个雏形，把磁盘分割成 **blocks**，每个4KB（习惯）。现在我们就建立了一个最最最简单的FS了，一系列的 blocks而已，假设64个，如下：
 
@@ -324,7 +324,7 @@ give the tool, as input, a device (such as a disk partition, e.g., /dev/sda1) an
 
 所以 mount 的时候，OS先读取 superblock。
 
-## 40.3 文件组织：inode
+#### 40.3 文件组织：inode
 
 每个inode由一个数组（**i-number**）指引，这就是我们之前说的 **low-level name**。
 
@@ -342,7 +342,7 @@ inodeTableStartAddr + N*sizeof(inode)
 
 上面的信息都是一个文件的 **metadata**。
 
-#### Multi-Level Index
+######## Multi-Level Index
 
 为了支持更大的文件。引入了间接指针！不过直接指针也是有的，比如12个直接指针，一个单独的间接指针，一个block是4KB大小，disk address是4B，那么可以有1024个直接指针被间接引用，这样文件最大就能到（12+1024）*4K=4144KB。
 
@@ -352,13 +352,13 @@ inodeTableStartAddr + N*sizeof(inode)
 
 ![1548082344057](/img/in-post/持久性Persistence.assets/1548082344057.png)
 
-## 40.4 目录组织
+#### 40.4 目录组织
 
 可以采用的一个简单的方法，包含一个列表(entry name, inode number)pair。文件系统一般把目录也当成文件存储，所以目录也有 inode，在inode table里，不过类型上是“目录”而非常规文件。
 
 XFS等文件系统使用 B-tree 的形式存储目录，那样更快。
 
-## 40.5 空闲空间管理
+#### 40.5 空闲空间管理
 
 在这个简单的文件系统中，我们只用两个简单的 **bitmap** 做这件事。
 
@@ -366,7 +366,7 @@ XFS使用 **B-tree** 来表示哪些chunk是free。
 
 ext3等系统也不是说用一块只分出一块，而是一次找一连串的blocks，因为这样能保证文件的部分在磁盘中连续提升性能，这样的 **pre-allocation** 策略很常见。
 
-## 40.6 Reading和Writing的路径
+#### 40.6 Reading和Writing的路径
 
 现在跟一遍 access 以熟悉，假设现在FS已经挂载并且superblock已经在内存中了，其它的东西还在磁盘。
 
@@ -400,7 +400,7 @@ ext3等系统也不是说用一块只分出一块，而是一次找一连串的b
 
 
 
-## 40.7 Caching & Buffering
+#### 40.7 Caching & Buffering
 
 I/O开销过于巨大，一般使用内存来缓存重要的 blocks。
 
@@ -414,7 +414,7 @@ write必须把操作发到设备上，那么这个buffering策略不太一样。
 
 但是！某些应用（数据库等）并不能因此受益，为了避免缓存导致的数据丢失，一般直接通过调用 `fsync()` ，使用 **direct I/O** 接口绕过cache。
 
-## 40.8 小结
+#### 40.8 小结
 
 关于文件的信息是 metadata，通常存在 inode 中，目录就是特别的一种文件，FS使用类似bitmap的结构追踪哪些data block和inodes是free的。
 
@@ -422,7 +422,7 @@ write必须把操作发到设备上，那么这个buffering策略不太一样。
 
 # 41 Locality & Fast file system
 
-## 41.1 羸弱的性能
+#### 41.1 羸弱的性能
 
 古老的 UNIX file system 更像把磁盘当作一个随机访问的内存，数据都是分散的。举个例子，数据块经常和它的inode很远，索引开销非常大。
 
@@ -430,11 +430,11 @@ write必须把操作发到设备上，那么这个buffering策略不太一样。
 
 另一个问题是：原始的 block size 太小了（512B）这样传输数据效率不高，(虽然block小，内部碎片小)
 
-## 41.2 感知的解决方法
+#### 41.2 感知的解决方法
 
 伯克利的FFS思想是将文件系统结构和分配策略设计为“磁盘感知”，从而提高性能。因此Fast File System开创了新纪元。保持接口一致，但改变内部实现。所以现有的文件系统都是改变了接口的内部设计。
 
-## 41.3 组织结构: Cylinder Group
+#### 41.3 组织结构: Cylinder Group
 
 ![1548302064975](/img/in-post/持久性Persistence.assets/1548302064975.png)
 
@@ -450,7 +450,7 @@ write必须把操作发到设备上，那么这个buffering策略不太一样。
 
 
 
-## 41.4 策略:如何分配文件和目录
+#### 41.4 策略:如何分配文件和目录
 
 基本思想：把相关的放在一起，把不相干的远离。FFS使用了一些简单的启发式放置方法。
 
@@ -462,11 +462,11 @@ write必须把操作发到设备上，那么这个buffering策略不太一样。
 
 ![1548315950190](/img/in-post/持久性Persistence.assets/1548315950190.png)
 
-## 41.5 测量文件局部性
+#### 41.5 测量文件局部性
 
 ![1548316061144](/img/in-post/持久性Persistence.assets/1548316061144.png)
 
-## 41.6 大文件的例外
+#### 41.6 大文件的例外
 
 对于大文件可能会直接填满一个group，所以FFS这么做：先在第一个 block group 分配一些blocks（比如就是12，直接索引的数量），然后在另一个 block group 中分配同样的数量，依次类推。
 
@@ -476,7 +476,7 @@ write必须把操作发到设备上，那么这个buffering策略不太一样。
 
 随着磁盘的容量越来越多，同一个 surface 更多的bits，需要在每次 seek 之间传输更多的数据才行。
 
-## 41.7 FFS的其它事项
+#### 41.7 FFS的其它事项
 
 内部碎片的解决方案：FFS设计者引入了 **sub-blocks** ，每个是512KB，那么如果你创建了一个小文件，比如1KB，占用两个 sub-blocks 不会浪费整个 4KB block。随着文件增长，FS会持续分配小的sub-blocks，直到填满 4KB block，然后把 sub-blocks拷贝进去，释放sub-blocks以便未来使用。
 
@@ -488,7 +488,7 @@ write必须把操作发到设备上，那么这个buffering策略不太一样。
 
 你也许会想这个方法不是最棒的，因为现代的系统更加聪明，每次读入一个track的内容缓存起来，这对于FS都是透明的。这种内部的 disk cache 也叫做 **track buffer**。FS不必担心这些低级别的细节。
 
-## 41.8 总结
+#### 41.8 总结
 
 FFS是一个 file system 发展的分水岭。中心思想就是：treat the disk like it's a disk。借鉴FFS的有 ext2 ext3 等等。
 
@@ -498,7 +498,7 @@ FFS是一个 file system 发展的分水岭。中心思想就是：treat the dis
 
 系统也许会崩溃会断电，on-disk state 可能只被部分更新，crash之后，系统启动后挂载文件系统，怎么保证文件系统维护 on-disk image 在一个可信任的状态。
 
-## 42.1 Detailed example
+#### 42.1 Detailed example
 
 ![1548339483081](/img/in-post/持久性Persistence.assets/1548339483081.png)
 
@@ -520,7 +520,7 @@ FFS是一个 file system 发展的分水岭。中心思想就是：treat the dis
 
 
 
-## Solution #1: File system checker
+#### Solution #1: File system checker
 
 早期的文件系统对于 crash consistency 采用的是让不一致性发生，然后重启后再修复它的思路。但是不能修复所有情况，比如FS看起来一致的，不过 inode 指向了垃圾数据。
 
@@ -538,7 +538,7 @@ FSCK需要对FS的结构很了解，这太复杂。而且扫描整个磁盘太�
 
 FSCK也有点不合理，因为要扫描整个磁盘以修复少量的内容太慢了，就好像你把钥匙掉到了地板上，但是你要找整个房间角落来搜索这个钥匙一样。
 
-## Solution #2: Journaling（WAL）
+#### Solution #2: Journaling（WAL）
 
 最好的解决方案是从数据库那边偷来的，这个思想就是 **write-ahead logging**，专门解决这类问题。文件系统中，出于历史原因也叫它 **journaling**。Ext4、XFS、NTFS都是这种。
 
@@ -670,11 +670,11 @@ foo目录要改变目录内容，因为目录被当作 metadata，所以foo这�
 
 
 
-##  Solution #3: Other Approaches
+####  Solution #3: Other Approaches
 
 略
 
-## 42.5 总结
+#### 42.5 总结
 
 有许多方法解决一致性，传统用 FSCK，但是太慢了。后来现代的系统用 Journaling，恢复时间减少到了 O(size-of-the log)，加速了recovery。最常见的Journaling形式按照 metadata journaling 排序。
 
@@ -691,13 +691,13 @@ foo目录要改变目录内容，因为目录被当作 metadata，所以foo这�
 
 所以这样的FS专注在写性能，尝试利用磁盘的顺序带宽。此外，频繁更新 on-disk metadata structures 也表现很好。这种FS就叫 **LFS**。当往磁盘写数据前，LFS首先缓存所有的 updates（包括metadata）在内存的一个 **segment**。当segment满了后，才会写入到disk中连续很长的一个部分，LFS从来不覆盖写现有数据，而总是把 segments 写到free locations。因为segments很大，性能达到了顶峰。
 
-## 43.1 顺序写入disk
+#### 43.1 顺序写入disk
 
 顺序写是LFS的核心思想：比如，先写入data block，然后写入inode，同时inode标记data在哪里。
 
 ![1548571274634](/img/in-post/持久性Persistence.assets/1548571274634.png)
 
-## 43.2 效率地顺序写
+#### 43.2 效率地顺序写
 
 因为磁盘的物理结构，如果写一个block就commit到磁盘一次，太慢，因为磁头可能那会已经转过了那个位置，要等一个周期才转回来。可以准备一个buffer，这个技术叫 **write buffering**。写disk之前，LFS追踪一堆updates在内存，足够数量后才一次写disk。这个大的chunk of updates叫 **segment** (和内存管理那个不一样)
 
@@ -705,7 +705,7 @@ foo目录要改变目录内容，因为目录被当作 metadata，所以foo这�
 
 ![1548571887448](/img/in-post/持久性Persistence.assets/1548571887448.png)
 
-## 43.3 Buffer多少才好？
+#### 43.3 Buffer多少才好？
 
 1. 寻址时间
 2. 纯访存速度
@@ -715,19 +715,19 @@ foo目录要改变目录内容，因为目录被当作 metadata，所以foo这�
 
 3个因素决定每次缓存多少才好。
 
-## 43.5 inode map
+#### 43.5 inode map
 
 最新的inode不像之前的文件系统通过首地址+偏移算出来。需要一个inode map (**imap**)来定位最新的inode。这个imap的片段（每个entry 4B，磁盘的指针大小）一般放在最新数据的右边，如下图所示：
 
 ![1548573063174](/img/in-post/持久性Persistence.assets/1548573063174.png)
 
-## 43.6 The checkpoint region
+#### 43.6 The checkpoint region
 
 需要知道 imap 在哪里存放，所以 **checkpoint region(CR)** 就是干这个的，CR是周期性更新，非实时。下图就是例子：
 
 ![1548573416817](/img/in-post/持久性Persistence.assets/1548573416817.png)
 
-## 43.8 目录怎么办
+#### 43.8 目录怎么办
 
 当创建一个文件foo在一个新目录时，disk结构如下：
 ![1548575438334](/img/in-post/持久性Persistence.assets/1548575438334.png)
@@ -736,7 +736,7 @@ foo目录要改变目录内容，因为目录被当作 metadata，所以foo这�
 
 以后更新这个file只会在后面追加这个文件的内容，目录不用动， 因为目录和文件通过一层 imap 转换，只要imap记录着foo的最新地址就好。
 
-## 43.9 垃圾回收
+#### 43.9 垃圾回收
 
 LFS cleaner不是直接把死数据free掉，那样会留有很多空洞，影响性能。相反，采用 **segment-by-segment** basis，为随后的writing清理出大段的空间。周期性地，cleaner检查M个old segments，然后把Live block读出来放到新的 segments，这样就有N个新的segments，N<M。拷贝后，旧的segments清空掉。
 
@@ -756,7 +756,7 @@ segment summary block纪录存活信息
 
 上述的方法不太好，最好是这样的：“Improving the Performance of Log-structured File Systems with Adaptive Methods” by Jeanna Neefe Matthews, Drew Roselli, Adam M. Costello, Randolph Y. Wang, ThomasE. Anderson. SOSP 1997, pages 238-251, October, Saint Malo, France. A more recent paper detailing better policies for cleaning in LFS.
 
-## 43.12 恢复
+#### 43.12 恢复
 
 crash两种情况，1.写CR时；2.写segment时
 
@@ -766,7 +766,7 @@ crash两种情况，1.写CR时；2.写segment时
 
 参考“Design and Implementation of the Log-structured File System” by Mendel Rosenblum.http://www.eecs.berkeley.edu/Pubs/TechRpts/1992/CSD-92-696.pdf. The award-winning dissertation about LFS, with many of the details missing from the paper
 
-## 43.13 总结
+#### 43.13 总结
 
 LFS的方法创新在更新磁盘，不是就地更新，而是追加数据，然后再把旧的数据回收以清理。大量的写操作相比传统文件系统能给一个更好的性能。LFS也许适合SSD。
 
@@ -778,7 +778,7 @@ LFS的方法创新在更新磁盘，不是就地更新，而是追加数据，�
 
 > 本章说的page、block不同于之前文件系统中的。
 
-## 44.2 From bits to Banks/Planes
+#### 44.2 From bits to Banks/Planes
 
 只存几个bit肯定不是一个合格的外存，因此SSD被组织成 **banks** or **planes**。它们包含许许多多的cells。
 
@@ -786,7 +786,7 @@ LFS的方法创新在更新磁盘，不是就地更新，而是追加数据，�
 
 ![1547778561926](/img/in-post/持久性Persistence.assets/1547778561926.png)
 
-## 44.4 Basic Flash Operations
+#### 44.4 Basic Flash Operations
 
 三个low-level操作：
 
@@ -800,7 +800,7 @@ LFS的方法创新在更新磁盘，不是就地更新，而是追加数据，�
 
 但是当一个block写满后（每个page都是 valid）只能通过erase操作了，问题来了！其它的page怎么办？
 
-## 44.5 From raw flash to flash-based ssd
+#### 44.5 From raw flash to flash-based ssd
 
 ![1547778982199](/img/in-post/持久性Persistence.assets/1547778982199.png)
 
@@ -810,7 +810,7 @@ SSD内部应该有一些控制设备，如上图。FTL（**flash translation lay
 
 加强SSD的可靠性也可以从多个点入手。比如，**wear out**，如果单独的block被擦除和编程过多次，就会变得不可用；FTL应该努力让writes尽可能发到各个blocks上，这个操作就是 **wear leveling**。
 
-## 44.7 A Log-structured FTL
+#### 44.7 A Log-structured FTL
 
 直接映射逻辑块和物理块肯定不行，现代FTL多用 **log structured**。这个思想在 device 和 file system 都很有用。一个对 logical block N 的写操作，设备把这个写操作追加到 current-being-written-to block 中的下一个空闲的 spot 上。这个行为就是**logging**。为了实现读，设备在NVM中维护一个 **mapping table**，记录 logical block 的物理地址。
 
@@ -832,7 +832,7 @@ SSD内部应该有一些控制设备，如上图。FTL（**flash translation lay
 
 缺点也是有的，过度地写一个 logical block 会带来 **garbage**。设备要周期执行 **garbage collection (GC)**。
 
-## 44.8 Garbage Collection
+#### 44.8 Garbage Collection
 
 举个例子来讲这一节。
 
@@ -854,7 +854,7 @@ SSD内部应该有一些控制设备，如上图。FTL（**flash translation lay
 
 通知设备由某个地址指明的blocks不再需要了，SSD后面可以从FTL中清楚这个信息，然后在GC的时候再回收这部分空间。
 
-## 44.9 Mapping Table Size
+#### 44.9 Mapping Table Size
 
 mapping talbe 的空间也是个问题，假设4KB的Page的SSD一共1TB，4B作为一个entry，需要1GB的空间来放mapping table，太大了，**page level** FTL的解决不太现实。
 
@@ -908,7 +908,7 @@ FTL 可以执行 **switch merge** 程序。就是把 block 0,1,2,3 变成一个 
 
 
 
-## 44.10 Wear Leveling
+#### 44.10 Wear Leveling
 
 后台一般执行 wear leveling 操作，正如上面提到的，对于长期不改变的数据，FTL 会周期读出来放到其它地方。
 
