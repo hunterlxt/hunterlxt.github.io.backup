@@ -2,7 +2,7 @@
 layout:     post
 title:      "操作系统的三个主题——持久化"
 subtitle:   "The part 3 of Operating Systems: Three Easy Pieces"
-date:       2018-01-27
+date:       2019-01-27
 author:     "TXXT"
 catalog:    true
 tags:
