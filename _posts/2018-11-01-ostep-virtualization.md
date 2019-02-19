@@ -10,7 +10,6 @@ tags:
 ---
 
 > 参考：*Operating Systems: Three Easy Pieces*
->
 > OS是一个工程化色彩很强的CS基础课程，因为跨专业的原因，没有完整学习过这门课程，现在还债了……
 
 # 2. Introduction
@@ -156,6 +155,24 @@ The shell is just **a user program**. 当你敲入了执行命令后，shell会�
 
 Unix pipes 用相似的方式实现，但是通过 pipe() 系统调用完成的。grep 和 '|' 什么的用法自己搜吧。
 
+#### 5.5 Process Control and Users
+
+除了上面的API还有其它的，比如 **kill** 用来发送一个 signal 给进程。大多数的UNIX shell 中，按键组合可以向当前进程传递特定信号；例如，ctrl+c 发送 SIGINT（终止），ctrl+z 发送 SIGTSTP（停止）从而暂停执行。
+
+整个信号系统提供了丰富的功能，可以为进程发送外部事件，包括在各个进程中接收和处理这些信号的方式，以及向各个进程和整个进程组发送信号的方法。要使用这种通信方式，进程使用 signal() 系统调用来捕获各种信号；这样做确保当特定的信号传递到进程时，暂停正常运行以响应。参考[SR05]
+
+当然不是每个 user 都能随便发送这些信号的，OS负责区分user的权限。
+
+#### 5.6 Useful Tools
+
+`ps`：哪个进程正在运行
+
+`top`：显示进程相关的资源利用
+
+`kill`：用来发送特定信号结束进程
+
+
+
 #### Homework (code)
 
 1. 同一个变量，哪怕malloc分配到heap中的变量，fork之后就互相独立了，互不影响；
@@ -244,6 +261,8 @@ direct execution很简单，就是OS在process list创建一个process entry，�
 在X86中，当trap时，processor会把program counter，flags和一些register压入每个process都有的那个 **kernel stack**。执行 return-from-trap指令后，将会把这些压入的东西弹出恢复 user-mode 程序的执行。
 
 当进入kernel后并不是user来告知该运行什么代码，因为这样就不安全了。实际上kernel在boot time时设置了**trap table**。OS就能告诉硬件当特定的事件发生后该运行什么代码。OS通知了硬件 **trap handlers** 的位置，这样在硬件就能根据对应的事件转移到对应的handler代码上，由kernel负责完成继续的工作。
+
+为了指明确切的 system call，需要一个 **system-call number** 分配到每一次的系统调用。user程序负责把这个number放到对应的 register 或者 一个stack中。所以 user 不能指明我要运行哪里的代码，只能通过这个number由OS决定是否运行，运行什么。
 
 ![1544709781578](/img/in-post/虚拟化virtualization.assets/1544709781578.png)
 
@@ -963,13 +982,9 @@ page size 在这个例子中扮演了重要的角色。如果 size 更大，那�
 
 硬件还是OS？
 
-早期，一般是硬件实现的，需要通过 **page-table base register** 获取page table在内存的位置，然后miss后遍历page table找到对应的PFN更新TLB。
+比如x86，一般是硬件实现的，需要通过 **page-table base register** 获取page table在内存的位置，然后miss后遍历page table找到对应的PFN更新TLB。(CR3寄存器)
 
-后来现代系统用软件实现的技术叫 **software-managed TLB**。当TLB miss后，硬件仅仅发出一个异常，然后进入内核态，执行一个 **trap handler**。
-
-第一个问题来了？返回的时候并不是PC+1，而是重复执行一次指令，即PC不变，这一次，TLB hit。所以根据异常的不同，PC保存的内容也有所区别。
-
-第二个问题是为了避免无尽的TLB miss，需要把TLB miss handler放到物理地址上（反正就是不要再用虚拟地址做翻译了）。
+后来现代比如MIPS，用软件实现的技术叫 **software-managed TLB**。当TLB miss后，硬件仅仅发出一个异常，然后进入内核态，执行一个 **trap handler**。第一个问题来了？返回的时候并不是PC+1，而是重复执行一次指令，即PC不变，这一次，TLB hit。所以根据异常的不同，PC保存的内容也有所区别。第二个问题是为了避免无尽的TLB miss，需要把TLB miss handler放到物理地址上（反正就是不要再用虚拟地址做翻译了）。
 
 用OS来处理的话，**灵活性** 和 **简单性** 非常棒。
 
@@ -985,13 +1000,13 @@ other bits 里存的有 **valid bit** 和 **protection bit** 等，还有其它�
 
 #### 19.5 TLB的问题
 
-##### context switch
+######## context switch
 
 不同的进程的地址空间对应不同的页表，而每次更换进程就清空TLB开销过大，所以加入额外的bit指示这个 translation 是谁的，这样就算有同样的 VPN 也不会搞混了。ASID（**address space identifier**）就是干这个活的。
 
 ![1546413897279](/img/in-post/虚拟化virtualization.assets/1546413897279.png)
 
-##### Replacement Policy
+######## Replacement Policy
 
 当替换一个旧的entry时，一般替换 **least-recently-used** (LRU) entry。
 
@@ -1045,7 +1060,7 @@ bounds寄存器在这种段页式管理中很重要，比如一个段只用了�
 
 但是注意！TLB miss后现在需要两次load了，一次是 page directory，一次是PTE本身。这是个 **time-space trade-off**。所以在这些更小的table的情况中，TLB miss造成了更大的开销。而且为了节约内存，我们让系统支持多级页表更加复杂化。
 
-##### A Detailed Multi-level Example
+######## A Detailed Multi-level Example
 
 ![1546437128178](/img/in-post/虚拟化virtualization.assets/1546437128178.png)
 
@@ -1073,7 +1088,7 @@ bounds寄存器在这种段页式管理中很重要，比如一个段只用了�
 
 
 
-##### More Than Two Levels
+######## More Than Two Levels
 
 ![1546438233283](/img/in-post/虚拟化virtualization.assets/1546438233283.png)
 
@@ -1081,7 +1096,7 @@ bounds寄存器在这种段页式管理中很重要，比如一个段只用了�
 
 
 
-##### Remember the TLB
+######## Remember the TLB
 
 ![1546438322464](/img/in-post/虚拟化virtualization.assets/1546438322464.png)
 
@@ -1167,5 +1182,24 @@ Tm代表访问内存的开销，Td代表访问磁盘的开销，Phit代表命中
 
 ![1546502948288](/img/in-post/虚拟化virtualization.assets/1546502948288.png)
 
+#### 22.7 实现基于历史的算法
+
+为了实现LRU，每次page访问，更新一些数据结构以让这个page移动到list的最头部，这样非常频繁。这样的累计追踪很消耗系统性能。
+
+#### 22.8 近似LRU
+
+既然找到绝对oldest的page非常耗时，也许可以用近似法实现。而且事实上大多数系统用的也是近似LRU方法。
+
+需要一些硬件（**use bit**）的支持。每个page有一个use bit，可能就在内存里之类的。（可能就在 per-process page table中）当一个page被访问到，就把use bit设置为1。剩下的就是OS的任务了。
+
+那么OS怎么做呢？一种方法是 **clock algorithm**。想象所有的page组织成一个循环的链表，有一个钟表指针，当必须替换时，它看看当前的bit是不是0（1代表最近用过的），如果不是就置为0并查找下一个page，直到找到为0的。
 
 
+
+**考虑脏页**
+
+因为丢弃脏页前，要写回外存，所以VM系统更愿意丢弃clean page而非dirty page。所以每个page还有1位 **dirty bit**，来指示这部分page是不是修改过的。
+
+# 23 完整的VM系统
+
+参见Linux实现
