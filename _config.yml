@@ -45,10 +45,10 @@ plugins: [jekyll-paginate]
 # document: http://jekyllrb.com/docs/configuration/#kramdown
 markdown: kramdown
 kramdown:
-    # input: GFM                            # use Github Flavored Markdown !important
-    syntax_highlighter: rouge
-    syntax_highlighter_opts:
-        disable: true
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter_opts:
+    disable: true
 
 
 # Disqus settings
