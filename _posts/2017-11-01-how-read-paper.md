@@ -29,6 +29,9 @@ $$
 \end{align*}
 $$
 
+$ 123 $
+$123$
+
 读4个方面：
 
 1. **仔细读 title, abstract, introduction**
