@@ -45,7 +45,7 @@ plugins: [jekyll-paginate]
 # document: http://jekyllrb.com/docs/configuration/#kramdown
 markdown: kramdown
 kramdown:
-    input: GFM                            # use Github Flavored Markdown !important
+    # input: GFM                            # use Github Flavored Markdown !important
     syntax_highlighter_opts:
         disable: true
 
@@ -77,11 +77,6 @@ featured-condition-size: 1              # A tag will be featured if the size of 
 # Progressive Web Apps
 chrome-tab-theme-color: "#000000"
 service-worker: true
-
-
-
-# MathJax rendering for layout:page (e.g. post preview)
-page-mathjax: true
 
 
 
