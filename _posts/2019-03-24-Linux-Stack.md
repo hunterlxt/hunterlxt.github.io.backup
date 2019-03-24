@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "/img/in-post/Linux中的栈结构"
+title:      "Linux中的栈结构"
 subtitle:   "Stacks in Linux"
 date:       2019-03-24
 author:     "TXXT"
