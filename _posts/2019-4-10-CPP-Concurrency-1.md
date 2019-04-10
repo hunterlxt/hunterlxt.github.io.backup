@@ -51,7 +51,6 @@ b = *p;
 对于std::thread，默认构造函数创建空的执行对象，初始化构造函数接受 “函数名+参数列表”。注意，可以被 joinable 的thread对象必须在它被销毁前被主线程join或者detached。
 
 ```c++
-三个例子
 std::thread t1; //t1 is not a thread
 std::thread t2(func, n); //pass by value
 std::thread t3(std::move(t2)); // t3 is now running func(),t2 is no longer a thread
