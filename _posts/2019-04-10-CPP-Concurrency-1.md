@@ -4,7 +4,7 @@ title:      "C++并发之线程管理"
 subtitle:   "CPP concurrency: thread management"
 date:       2019-04-09
 author:     "TXXT"
-catalog:    true
+catalog:    false
 tags:
     - C++
 ---
