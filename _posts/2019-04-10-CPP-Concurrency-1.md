@@ -44,7 +44,7 @@ b = *p;
 
 ## thread基础
 
-<thread>头文件声明了线程类和一个swap辅助函数，还有 `this_thread` 也声明在此。
+`<thread>`头文件声明了线程类和一个swap辅助函数，还有 `this_thread` 也声明在此。
 
 在 `this_thread` 命名空间中声明了 get_id，yield，sleep_until，sleep_for 等辅助函数。
 
